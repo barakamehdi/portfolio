@@ -8,6 +8,7 @@ interface SlideNavigationProps {
   totalSlides: number;
   onPrevious: () => void;
   onNext: () => void;
+  onGoTo?: (index: number) => void;
 }
 
 export default function SlideNavigation({
@@ -15,39 +16,34 @@ export default function SlideNavigation({
   totalSlides,
   onPrevious,
   onNext,
+  onGoTo,
 }: SlideNavigationProps) {
   return (
     <>
       {/* Dot Indicators */}
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
+        initial={{ opacity: 0, x: 10 }}
+        animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.6, delay: 0.5 }}
-        className="fixed right-8 top-1/2 -translate-y-1/2 z-40 flex flex-col gap-3"
+        className="fixed right-4 md:right-8 top-1/2 -translate-y-1/2 z-40 flex flex-col gap-2 md:gap-3"
       >
         {Array.from({ length: totalSlides }).map((_, index) => (
           <motion.button
             key={index}
-            onClick={() => {
-              // Calculate navigation needed
-              if (index > currentSlide) {
-                for (let i = currentSlide; i < index; i++) onNext();
-              } else if (index < currentSlide) {
-                for (let i = index; i < currentSlide; i++) onPrevious();
-              }
-            }}
-            className={`w-3 h-3 rounded-full transition-all duration-300 ${
+            onClick={() => onGoTo?.(index)}
+            className={`rounded-full transition-all duration-300 ${
               index === currentSlide
-                ? "bg-accent w-8"
-                : "bg-text-tertiary hover:bg-text-secondary"
+                ? "bg-accent w-6 md:w-8 h-2 md:h-3"
+                : "bg-text-tertiary/50 hover:bg-text-secondary w-2 h-2 md:w-3 md:h-3"
             }`}
-            whileHover={{ scale: 1.2 }}
+            whileHover={{ scale: 1.3 }}
             whileTap={{ scale: 0.9 }}
+            aria-label={`Go to slide ${index + 1}`}
           />
         ))}
       </motion.div>
 
-      {/* Navigation Buttons (hidden on mobile) */}
+      {/* Navigation Buttons */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -71,15 +67,15 @@ export default function SlideNavigation({
         </button>
       </motion.div>
 
-      {/* Keyboard hint on first slide */}
+      {/* Keyboard hint on first slide (mobile only) */}
       {currentSlide === 0 && (
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 1.2 }}
-          className="fixed bottom-8 md:hidden left-1/2 -translate-x-1/2 z-40 text-xs text-text-tertiary text-center"
+          className="fixed bottom-8 md:hidden left-1/2 -translate-x-1/2 z-40 text-xs text-text-tertiary text-center px-4"
         >
-          <p>Use arrow keys or scroll to navigate</p>
+          <p>Swipe or scroll to navigate</p>
         </motion.div>
       )}
     </>
